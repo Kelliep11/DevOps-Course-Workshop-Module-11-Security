@@ -4,6 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
 
 namespace webapi
 {
@@ -18,6 +21,16 @@ namespace webapi
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+            services.AddAuthorization(config =>
+            {
+                config.AddPolicy(
+                    "ApplicationPolicy",
+                    policy => policy.RequireClaim(ClaimConstants.Roles, "WeatherApplicationRole")
+                );
+            });
+            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -60,6 +73,9 @@ namespace webapi
             }
 
             app.UseRouting();
+            
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

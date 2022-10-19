@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace webapi.Controllers
 {
+    [Authorize(Policy = "ApplicationPolicy")]
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
